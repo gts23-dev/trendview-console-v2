@@ -43,7 +43,7 @@ export function ArticleToolbar({
   return (
     // 왼쪽은 목록을 줄이는 조건(플랫폼·기간), 오른쪽은 자유 입력인 검색이다.
     // 기간까지 오른쪽으로 보내면 같은 종류가 양 끝으로 갈라진다.
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b pb-4">
+    <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2">
       <div className="flex flex-wrap items-center gap-1.5">
         <Button
           type="button"

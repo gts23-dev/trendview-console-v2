@@ -2,7 +2,6 @@ import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ApiError, AppError, getErrorMessage } from '@/shared/errors/app-error';
 
-
 function logRequestError(message: string, error: unknown) {
   console.error(
     message,

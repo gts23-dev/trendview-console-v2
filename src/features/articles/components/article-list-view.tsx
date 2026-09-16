@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { formatCount } from '@/shared/utils/format';
 import { useMediaScope } from '@/features/medias';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardHeading,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DataGrid } from '@/components/ui/data-grid';
+import { DataGridPagination } from '@/components/ui/data-grid-pagination';
 import {
   Select,
   SelectContent,
@@ -16,12 +25,12 @@ import {
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { EmptyState, ErrorState } from '@/components/common/empty-state';
 import { PageHeader } from '@/components/common/page-header';
+import { useServerTable } from '@/components/common/use-server-table';
 import { ARTICLE_STATE } from '../api/articles';
 import { useArticleList } from '../hooks/use-articles';
 import {
   ARTICLE_PAGE_SIZE,
   ARTICLE_SORTS,
-  countArticlePages,
   parseArticleFilters,
   serializeArticleFilters,
   type ArticleFilters,
@@ -113,8 +122,15 @@ export function ArticleListView({
   const items = list.data?.items ?? [];
   const searchCount = list.data?.searchCount ?? 0;
   const totalCount = list.data?.totalCount ?? 0;
-  const lastPage = countArticlePages(list.data?.searchCount ?? 0);
   const allSelected = items.length > 0 && selected.length === items.length;
+  // 카드 목록에도 표 화면과 같은 쪽 번호를 쓴다. 컬럼은 비운다.
+  const table = useServerTable({
+    data: items,
+    totalCount: searchCount,
+    page: filters.page,
+    pageSize: ARTICLE_PAGE_SIZE,
+    onPageChange: (page) => apply({ page }),
+  });
 
   return (
     <div className="space-y-4 px-5 py-6 sm:px-8 lg:px-10">
@@ -123,141 +139,141 @@ export function ArticleListView({
         description={description}
         action={headerAction}
       />
-      <ArticleToolbar filters={filters} onChange={apply} onReset={reset} />
-
-      <div className="flex min-h-9 flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 text-sm">
-          <label className="flex cursor-pointer items-center gap-2">
-            <Checkbox
-              checked={allSelected}
-              disabled={items.length === 0}
-              onCheckedChange={(value) =>
-                setSelected(value === true ? items.map((item) => item.id) : [])
-              }
-              aria-label="현재 페이지 전체 선택"
-            />
-            전체 선택
-          </label>
-          <span className="text-muted-foreground">
-            {searchCount === totalCount
-              ? `${formatCount(totalCount)}개`
-              : `${formatCount(searchCount)}개 / 전체 ${formatCount(totalCount)}개`}
-          </span>
-        </div>
-        {selected.length === 0 ? (
-          <Select
-            value={filters.sort}
-            onValueChange={(value) =>
-              apply({ sort: value as ArticleFilters['sort'] })
-            }
-          >
-            <SelectTrigger className="h-8 w-[130px]" aria-label="정렬 기준">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ARTICLE_SORTS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label} 순
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">
-              {formatCount(selected.length)}개 선택
-            </span>
-            <Button
-              size="sm"
-              onClick={() => setConfirming({ kind: 'action', ids: selected })}
-            >
-              {actionLabel}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setConfirming({ kind: 'delete', ids: selected })}
-            >
-              <Trash2 className="size-4" />
-              삭제
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {list.isPending ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
-          {Array.from({ length: ARTICLE_PAGE_SIZE }, (_, index) => (
-            <ArticleCardSkeleton key={index} />
-          ))}
-        </div>
-      ) : list.isError ? (
-        <ErrorState retry={() => list.refetch()} />
-      ) : items.length === 0 ? (
-        <EmptyState
-          title={emptyTitle}
-          description="기간이나 플랫폼 조건을 바꿔 보세요."
-        />
-      ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
-          {items.map((article) => (
-            <ArticleCard
-              key={article.id}
-              article={article}
-              selected={selected.includes(article.id)}
-              showBusinessTag={state === ARTICLE_STATE.posted}
-              onSelect={(value) =>
-                setSelected((current) =>
-                  value
-                    ? [...current, article.id]
-                    : current.filter((id) => id !== article.id),
-                )
-              }
-              onOpen={() => openArticle(article.id)}
-              action={
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    setConfirming({ kind: 'action', ids: [article.id] })
+      <DataGrid
+        table={table}
+        recordCount={searchCount}
+        isLoading={list.isPending}
+      >
+        <Card>
+          <CardHeader className="flex-wrap gap-3">
+            <CardHeading className="grow">
+              <ArticleToolbar
+                filters={filters}
+                onChange={apply}
+                onReset={reset}
+              />
+            </CardHeading>
+          </CardHeader>
+          <CardContent className="space-y-4 py-5">
+            <div className="flex min-h-9 flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-sm">
+                <label className="flex cursor-pointer items-center gap-2">
+                  <Checkbox
+                    checked={allSelected}
+                    disabled={items.length === 0}
+                    onCheckedChange={(value) =>
+                      setSelected(
+                        value === true ? items.map((item) => item.id) : [],
+                      )
+                    }
+                    aria-label="현재 페이지 전체 선택"
+                  />
+                  전체 선택
+                </label>
+                <span className="text-muted-foreground">
+                  {searchCount === totalCount
+                    ? `${formatCount(totalCount)}개`
+                    : `${formatCount(searchCount)}개 / 전체 ${formatCount(totalCount)}개`}
+                </span>
+              </div>
+              {selected.length === 0 ? (
+                <Select
+                  value={filters.sort}
+                  onValueChange={(value) =>
+                    apply({ sort: value as ArticleFilters['sort'] })
                   }
                 >
-                  {actionLabel}
-                </Button>
-              }
-            />
-          ))}
-        </div>
-      )}
+                  <SelectTrigger
+                    className="h-8 w-[130px]"
+                    aria-label="정렬 기준"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ARTICLE_SORTS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label} 순
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    {formatCount(selected.length)}개 선택
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      setConfirming({ kind: 'action', ids: selected })
+                    }
+                  >
+                    {actionLabel}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setConfirming({ kind: 'delete', ids: selected })
+                    }
+                  >
+                    <Trash2 className="size-4" />
+                    삭제
+                  </Button>
+                </div>
+              )}
+            </div>
 
-      {items.length > 0 && (
-        <nav
-          className="flex items-center justify-center gap-3 pt-2"
-          aria-label="페이지 이동"
-        >
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={filters.page <= 1}
-            onClick={() => apply({ page: filters.page - 1 })}
-          >
-            <ChevronLeft className="size-4" />
-            이전
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {formatCount(filters.page)} / {formatCount(lastPage)}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={filters.page >= lastPage}
-            onClick={() => apply({ page: filters.page + 1 })}
-          >
-            다음
-            <ChevronRight className="size-4" />
-          </Button>
-        </nav>
-      )}
+            {list.isPending ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
+                {Array.from({ length: ARTICLE_PAGE_SIZE }, (_, index) => (
+                  <ArticleCardSkeleton key={index} />
+                ))}
+              </div>
+            ) : list.isError ? (
+              <ErrorState retry={() => list.refetch()} />
+            ) : items.length === 0 ? (
+              <EmptyState
+                title={emptyTitle}
+                description="기간이나 플랫폼 조건을 바꿔 보세요."
+              />
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
+                {items.map((article) => (
+                  <ArticleCard
+                    key={article.id}
+                    article={article}
+                    selected={selected.includes(article.id)}
+                    showBusinessTag={state === ARTICLE_STATE.posted}
+                    onSelect={(value) =>
+                      setSelected((current) =>
+                        value
+                          ? [...current, article.id]
+                          : current.filter((id) => id !== article.id),
+                      )
+                    }
+                    onOpen={() => openArticle(article.id)}
+                    action={
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          setConfirming({ kind: 'action', ids: [article.id] })
+                        }
+                      >
+                        {actionLabel}
+                      </Button>
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+          <CardFooter>
+            <DataGridPagination />
+          </CardFooter>
+        </Card>
+      </DataGrid>
 
       <ArticleDetailSheet
         mediaId={mediaId}
