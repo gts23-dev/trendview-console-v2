@@ -1,20 +1,10 @@
-import {
-  BarChart3,
-  EyeOff,
-  FileText,
-  Hash,
-  LayoutGrid,
-  ListOrdered,
-  ScrollText,
-  Search,
-  Settings,
-  SlidersHorizontal,
-  Tags,
-  TrendingUp,
-  Users,
-} from 'lucide-react';
+import { FileText, LayoutGrid } from 'lucide-react';
 
 /**
+ * 만든 화면만 넣는다. 화면을 붙일 때 라우터(`routing/app-router.tsx`)와 여기에
+ * 한 줄씩 추가한다. 아직 없는 화면을 미리 걸어 두면 운영자가 눌렀을 때 빈
+ * 화면을 보게 된다. 남은 화면 목록과 순서는 `docs/migration-plan.md` §3에 있다.
+ *
  * `adminOnly`는 어드민 이용등급이 0이 아닐 때만 표시한다는 뜻이다. 메뉴 숨김은
  * 사용 편의를 위한 표시 제어이고 실제 인가는 서버가 검증한다.
  */
@@ -24,88 +14,6 @@ export const MENU_GROUPS = [
     items: [
       { label: '수집정보', path: '/collect', icon: LayoutGrid },
       { label: '게시정보', path: '/articles', icon: FileText },
-    ],
-  },
-  {
-    label: '통계',
-    items: [
-      {
-        label: '수집/게시/신고 개수',
-        path: '/stats/counts',
-        icon: BarChart3,
-        adminOnly: true,
-      },
-      {
-        label: '일간 사용자 유입량',
-        path: '/stats/users',
-        icon: TrendingUp,
-        adminOnly: true,
-      },
-      {
-        label: '콘텐츠 순위',
-        path: '/stats/contents',
-        icon: ListOrdered,
-        adminOnly: true,
-      },
-      {
-        label: '키워드(PK) 순위',
-        path: '/stats/tags',
-        icon: Hash,
-        adminOnly: true,
-      },
-      {
-        label: '키워드(PK) 집계',
-        path: '/stats/tag-totals',
-        icon: Tags,
-        adminOnly: true,
-      },
-      {
-        label: '접속자 순위',
-        path: '/stats/visitors',
-        icon: Users,
-        adminOnly: true,
-      },
-      {
-        label: '사용자 검색',
-        path: '/stats/user-search',
-        icon: Search,
-        adminOnly: true,
-      },
-      {
-        label: '사용자 접속 로그',
-        path: '/stats/user-logs',
-        icon: ScrollText,
-        adminOnly: true,
-      },
-    ],
-  },
-  {
-    label: '설정',
-    items: [
-      {
-        label: '사용자 관리',
-        path: '/settings/users',
-        icon: Users,
-        adminOnly: true,
-      },
-      { label: '카테고리 관리', path: '/settings/topics', icon: Settings },
-      {
-        label: '키워드(PK) 관리',
-        path: '/settings/base-keywords',
-        icon: Hash,
-      },
-      {
-        label: '키워드(PK) 제외',
-        path: '/settings/tag-ignores',
-        icon: EyeOff,
-        adminOnly: true,
-      },
-      {
-        label: '노출 가중치 관리',
-        path: '/settings/exposure',
-        icon: SlidersHorizontal,
-        adminOnly: true,
-      },
     ],
   },
 ];

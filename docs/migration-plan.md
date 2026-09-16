@@ -57,30 +57,30 @@ API 소유를 기준으로 나눕니다. 화면 개수가 아니라 데이터 �
 
 라우트는 기존 평면 구조 대신 그룹으로 묶습니다. `/:id` catch-all은 제거했습니다(§7 결정 3).
 
-| 기존 메뉴               | 기존 경로                     | v2 page                               | 사용 feature                        |
-| ----------------------- | ----------------------------- | ------------------------------------- | ----------------------------------- |
-| 로그인                  | `/login`                      | `pages/login`                         | auth                                |
-| 수집정보                | `/collect`                    | `pages/collect`                       | articles, medias                    |
-| 게시정보                | `/article`                    | `pages/articles`                      | articles, medias                    |
-| 신고정보(주석)          | `/article-report`             | `pages/article-reports`               | articles, medias                    |
-| 콘텐츠 상세             | `/:id`                        | 별도 page 없음. 목록 위 시트          | articles                            |
-| 수집/게시/신고 개수     | `/statistics`                 | `pages/stats/counts`                  | article-stats, medias               |
-| 일간 사용자 유입량      | `/statistic-users`            | `pages/stats/users`                   | user-stats, medias                  |
-| 콘텐츠 순위             | `/statistic-content-ranks`    | `pages/stats/contents`                | article-stats, articles, medias     |
-| 키워드(PK) 순위         | `/statistic-tag-ranks`        | `pages/stats/tags`                    | tags, articles, medias              |
-| 키워드(PK) 집계         | `/statistic-tag-aggs`         | `pages/stats/tag-totals`              | tags, medias                        |
-| 접속자 순위             | `/statistic-user-ranks`       | `pages/stats/visitors`                | user-stats, medias                  |
-| 사용자 검색             | `/statistic-user-search`      | `pages/stats/user-search`             | user-stats, medias                  |
-| 사용자 접속 로그        | `/statistic-user-logs`        | `pages/stats/user-logs`               | user-logs, medias, platforms        |
-| 사용자 관리             | `/users`                      | `pages/settings/users`                | users, medias                       |
-| 카테고리 관리           | `/topics`                     | `pages/settings/topics`               | topics, medias                      |
-| 키워드(PK) 관리         | `/base-keywords`              | `pages/settings/base-keywords`        | keywords, medias, topics, platforms |
-| 키워드(PK) 제외         | `/statistic-tag-ignores`      | `pages/settings/tag-ignores`          | tags, medias                        |
-| 노출 가중치 관리        | `/exposure`                   | `pages/settings/exposure`             | exposure, medias                    |
-| 플랫폼 관리(주석)       | `/platforms`, `/platform/:id` | `pages/settings/platforms`(+`detail`) | platforms                           |
-| 기존 키워드 관리(주석)  | `/keywords`                   | `pages/settings/keywords`             | keywords, medias, topics, platforms |
-| 채널 관리(주석)         | `/channels`                   | `pages/settings/channels`             | channels, medias, topics, platforms |
-| 비즈니스태그 관리(주석) | `/tags`                       | `pages/settings/tags`                 | tags, medias                        |
+| 기존 메뉴               | 기존 경로                     | v2 page                               | 사용 feature                        | 관리자 전용 |
+| ----------------------- | ----------------------------- | ------------------------------------- | ----------------------------------- | ----------- |
+| 로그인                  | `/login`                      | `pages/login`                         | auth                                | -           |
+| 수집정보                | `/collect`                    | `pages/collect`                       | articles, medias                    | -           |
+| 게시정보                | `/article`                    | `pages/articles`                      | articles, medias                    | -           |
+| 신고정보(주석)          | `/article-report`             | `pages/article-reports`               | articles, medias                    | -           |
+| 콘텐츠 상세             | `/:id`                        | 별도 page 없음. 목록 위 시트          | articles                            | -           |
+| 수집/게시/신고 개수     | `/statistics`                 | `pages/stats/counts`                  | article-stats, medias               | O           |
+| 일간 사용자 유입량      | `/statistic-users`            | `pages/stats/users`                   | user-stats, medias                  | O           |
+| 콘텐츠 순위             | `/statistic-content-ranks`    | `pages/stats/contents`                | article-stats, articles, medias     | O           |
+| 키워드(PK) 순위         | `/statistic-tag-ranks`        | `pages/stats/tags`                    | tags, articles, medias              | O           |
+| 키워드(PK) 집계         | `/statistic-tag-aggs`         | `pages/stats/tag-totals`              | tags, medias                        | O           |
+| 접속자 순위             | `/statistic-user-ranks`       | `pages/stats/visitors`                | user-stats, medias                  | O           |
+| 사용자 검색             | `/statistic-user-search`      | `pages/stats/user-search`             | user-stats, medias                  | O           |
+| 사용자 접속 로그        | `/statistic-user-logs`        | `pages/stats/user-logs`               | user-logs, medias, platforms        | O           |
+| 사용자 관리             | `/users`                      | `pages/settings/users`                | users, medias                       | O           |
+| 카테고리 관리           | `/topics`                     | `pages/settings/topics`               | topics, medias                      | -           |
+| 키워드(PK) 관리         | `/base-keywords`              | `pages/settings/base-keywords`        | keywords, medias, topics, platforms | -           |
+| 키워드(PK) 제외         | `/statistic-tag-ignores`      | `pages/settings/tag-ignores`          | tags, medias                        | O           |
+| 노출 가중치 관리        | `/exposure`                   | `pages/settings/exposure`             | exposure, medias                    | O           |
+| 플랫폼 관리(주석)       | `/platforms`, `/platform/:id` | `pages/settings/platforms`(+`detail`) | platforms                           | -           |
+| 기존 키워드 관리(주석)  | `/keywords`                   | `pages/settings/keywords`             | keywords, medias, topics, platforms | -           |
+| 채널 관리(주석)         | `/channels`                   | `pages/settings/channels`             | channels, medias, topics, platforms | -           |
+| 비즈니스태그 관리(주석) | `/tags`                       | `pages/settings/tags`                 | tags, medias                        | -           |
 
 수집정보를 진입 화면(`/` 리다이렉트 대상)으로 둡니다. 기존 대시보드 예제 화면은 제거합니다.
 
