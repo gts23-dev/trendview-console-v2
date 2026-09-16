@@ -1,132 +1,164 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
-import { readDemoSession } from '../src/features/auth/demo-adapter.ts';
-import { canEdit } from '../src/features/auth/model.ts';
-import { filterEntries } from '../src/features/entries/model/filter-entries.ts';
-import { entryInputSchema } from '../src/features/entries/model/schema.ts';
-import { readListParams } from '../src/pages/entries/list-params.ts';
+import { describe, it, mock } from 'node:test';
+import { isAdminGrade } from '../src/features/auth/model.ts';
+import {
+  getMediaCode,
+  mediaHeaders,
+} from '../src/features/medias/model/media-codes.ts';
+import { pickMediaId } from '../src/features/medias/model/media-scope.ts';
+import { parseStorageUrls } from '../src/features/medias/model/storage-urls.ts';
 import { createHttpClient } from '../src/shared/api/http-client.ts';
+import {
+  createReadOnlyFetcher,
+  isReadRequest,
+} from '../src/shared/api/read-only-fetcher.ts';
 import { ApiError } from '../src/shared/errors/app-error.ts';
+import { joinUrl } from '../src/shared/utils/url.ts';
 
-describe('권한과 세션 경계', () => {
-  it('관리자만 수정하며 손상된 저장값은 세션이 아니다', () => {
-    assert.equal(
-      canEdit({ id: 'demo-admin', name: '관리자', role: 'admin' }),
-      true,
-    );
-    assert.equal(
-      canEdit({ id: 'demo-viewer', name: '조회자', role: 'viewer' }),
-      false,
-    );
-    assert.equal(canEdit(null), false);
-    assert.equal(readDemoSession('{broken'), null);
-    assert.equal(readDemoSession('{"role":"admin"}'), null);
-    assert.equal(readDemoSession(null), null);
-    assert.equal(
-      readDemoSession(
-        JSON.stringify({ id: 'demo-viewer', name: '조회자', role: 'viewer' }),
-      )?.role,
-      'viewer',
-    );
+const SESSION = {
+  id: '1',
+  name: '운영자',
+  email: 'operator@example.com',
+  grade: 0,
+  medias: [
+    { id: 5, name: '컬쳐랜드' },
+    { id: 3, name: '영화' },
+  ],
+};
+
+describe('권한 판단', () => {
+  it('등급 0만 일반 운영자로 보고 나머지는 관리자로 본다', () => {
+    assert.equal(isAdminGrade(null), false);
+    assert.equal(isAdminGrade(SESSION), false);
+    assert.equal(isAdminGrade({ ...SESSION, grade: 1 }), true);
+    assert.equal(isAdminGrade({ ...SESSION, grade: 9 }), true);
   });
 });
-describe('목록 조건과 폼 검증', () => {
-  it('URL의 잘못된 페이지와 필터를 기본값으로 정규화한다', () => {
-    assert.deepEqual(
-      readListParams(new URLSearchParams('page=-3&status=oops&sort=oops')),
-      {
-        page: 1,
-        status: 'all',
-        search: '',
-        sort: 'newest',
-      },
-    );
-    assert.equal(readListParams(new URLSearchParams('page=1.5')).page, 1);
-    assert.equal(readListParams(new URLSearchParams('page=2')).page, 2);
+
+describe('전역 매체 범위', () => {
+  it('URL을 가장 먼저 쓰고 저장값, 첫 매체 순으로 되돌린다', () => {
+    assert.equal(pickMediaId('3', '5', SESSION.medias), 3);
+    assert.equal(pickMediaId(null, '3', SESSION.medias), 3);
+    assert.equal(pickMediaId(null, null, SESSION.medias), 5);
   });
-  it('검색과 상태를 함께 적용하고 전체 결과에서 정렬한다', () => {
-    const rows = [
-      {
-        id: '1',
-        title: '서비스 안내',
-        category: '공지' as const,
-        status: 'published' as const,
-        description: '',
-        author: '관리자',
-        updatedAt: '2026-09-01',
-      },
-      {
-        id: '2',
-        title: '서비스 업데이트',
-        category: '공지' as const,
-        status: 'draft' as const,
-        description: '',
-        author: '관리자',
-        updatedAt: '2026-09-02',
-      },
-    ];
-    assert.deepEqual(
-      filterEntries(rows, {
-        page: 1,
-        status: 'published',
-        search: ' 서비스 ',
-        sort: 'newest',
-      }).map((x) => x.id),
-      ['1'],
-    );
-    assert.deepEqual(
-      filterEntries(rows, {
-        page: 1,
-        status: 'all',
-        search: '',
-        sort: 'newest',
-      }).map((x) => x.id),
-      ['2', '1'],
-    );
-    assert.deepEqual(
-      rows.map((x) => x.id),
-      ['1', '2'],
-    );
-    assert.equal(
-      filterEntries(rows, {
-        page: 1,
-        status: 'all',
-        search: '없음',
-        sort: 'newest',
-      }).length,
-      0,
-    );
+  it('볼 수 없는 매체는 URL이든 저장값이든 버린다', () => {
+    // 권한이 바뀌어 접근할 수 없게 된 매체가 저장돼 있을 수 있다.
+    assert.equal(pickMediaId('99', null, SESSION.medias), 5);
+    assert.equal(pickMediaId(null, '99', SESSION.medias), 5);
+    assert.equal(pickMediaId('oops', '1.5', SESSION.medias), 5);
+    assert.equal(pickMediaId('', '', SESSION.medias), 5);
   });
-  it('공백 제목과 미정의 상태를 저장하지 않는다', () => {
-    assert.equal(
-      entryInputSchema.safeParse({
-        title: ' ',
-        category: '공지' as const,
-        status: 'draft',
-        description: '',
-      }).success,
-      false,
-    );
-    assert.equal(
-      entryInputSchema.safeParse({
-        title: '제목',
-        category: '공지' as const,
-        status: 'unknown',
-        description: '',
-      }).success,
-      false,
-    );
-    assert.equal(
-      entryInputSchema.parse({
-        title: ' 제목 ',
-        category: '공지' as const,
-        status: 'draft',
-        description: '',
-      }).title,
-      '제목',
-    );
+  it('볼 수 있는 매체가 없으면 범위를 정하지 않는다', () => {
+    assert.equal(pickMediaId('3', '5', []), null);
   });
 });
+
+describe('매체 코드와 스토리지 URL', () => {
+  it('매체 id를 서버가 요구하는 TV 헤더 값으로 바꾼다', () => {
+    assert.equal(getMediaCode(5), 'cultureland');
+    assert.equal(getMediaCode(999), '');
+    assert.deepEqual(mediaHeaders(3), { TV: 'movie' });
+    // 모르는 매체에 빈 헤더를 보내지 않는다.
+    assert.deepEqual(mediaHeaders(999), {});
+  });
+  it('환경변수의 스토리지 URL은 형식을 검증한 뒤 사용한다', () => {
+    assert.deepEqual(parseStorageUrls(undefined), {});
+    assert.deepEqual(parseStorageUrls('{broken'), {});
+    assert.deepEqual(parseStorageUrls('{"main":"not-a-url"}'), {});
+    assert.deepEqual(parseStorageUrls('{"main":"https://cdn.test/a/"}'), {
+      main: 'https://cdn.test/a/',
+    });
+  });
+  it('기준 URL과 상대 경로를 슬래시 중복 없이 합친다', () => {
+    assert.equal(
+      joinUrl('https://cdn.test/a/', '/x/y.jpg'),
+      'https://cdn.test/a/x/y.jpg',
+    );
+    assert.equal(
+      joinUrl('https://cdn.test/a', 'x.jpg'),
+      'https://cdn.test/a/x.jpg',
+    );
+    assert.equal(joinUrl('', 'x.jpg'), '');
+    assert.equal(joinUrl('https://cdn.test/a', ''), '');
+  });
+});
+
+describe('변경 요청 차단', () => {
+  it('조회만 통과시키고 읽기용 POST는 정확히 같은 경로만 허용한다', () => {
+    assert.equal(isReadRequest('GET', 'api/v1/admin/articles?page=1'), true);
+    assert.equal(isReadRequest('head', '/api/v1/medias'), true);
+    assert.equal(isReadRequest('POST', 'oauth/token'), true);
+    assert.equal(isReadRequest('POST', '/api/v1/admin/log'), true);
+    // 접두사로 비교하면 제외 사용자 등록이 조회로 통과해 버린다.
+    assert.equal(isReadRequest('POST', 'api/v1/admin/log/exclude/user'), false);
+    assert.equal(isReadRequest('POST', 'api/v1/admin/article/scrap'), false);
+    assert.equal(isReadRequest('PUT', 'api/v1/articles'), false);
+    assert.equal(isReadRequest('DELETE', 'api/v1/articles/delete'), false);
+    // 절대 URL과 쿼리·해시가 붙은 경로도 같은 기준으로 판단한다.
+    assert.equal(isReadRequest('POST', 'https://api.test/oauth/token'), true);
+    assert.equal(isReadRequest('POST', '/api/v1/admin/log/?x=1'), true);
+    assert.equal(isReadRequest('POST', 'https://api.test/api/v1/users'), false);
+  });
+  it('URL 객체와 Request 객체로 들어온 요청도 검사한다', async () => {
+    const warn = mock.method(console, 'warn', () => {});
+    const sent: string[] = [];
+    const fetcher = createReadOnlyFetcher(async (input) => {
+      sent.push(input instanceof Request ? input.url : String(input));
+      return new Response('{}');
+    });
+    try {
+      await fetcher(new URL('https://api.test/api/v1/medias'));
+      const blocked = await fetcher(
+        new Request('https://api.test/api/v1/users', { method: 'POST' }),
+      );
+      assert.equal(blocked.status, 204);
+      assert.deepEqual(sent, ['https://api.test/api/v1/medias']);
+    } finally {
+      warn.mock.restore();
+    }
+  });
+  it('막은 요청은 전송하지 않고 화면 동작을 위해 204로 답한다', async () => {
+    const warn = mock.method(console, 'warn', () => {});
+    const sent: string[] = [];
+    const fetcher = createReadOnlyFetcher(async (input, init) => {
+      sent.push(`${init?.method ?? 'GET'} ${String(input)}`);
+      return new Response('{}');
+    });
+    try {
+      const blocked = await fetcher('https://api.test/api/v1/articles', {
+        method: 'PUT',
+      });
+      assert.equal(blocked.status, 204);
+      assert.deepEqual(sent, []);
+      assert.equal(warn.mock.callCount(), 1);
+      await fetcher('https://api.test/api/v1/medias');
+      assert.deepEqual(sent, ['GET https://api.test/api/v1/medias']);
+    } finally {
+      warn.mock.restore();
+    }
+  });
+  it('막힌 변경 요청은 http client에서 빈 응답이 된다', async () => {
+    const warn = mock.method(console, 'warn', () => {});
+    try {
+      const request = createHttpClient({
+        baseUrl: 'https://api.test',
+        fetcher: createReadOnlyFetcher(async () => {
+          throw new Error('전송되면 안 됨');
+        }),
+      });
+      assert.equal(
+        await request('api/v1/articles', {
+          method: 'PUT',
+          body: '{"state":1}',
+        }),
+        undefined,
+      );
+    } finally {
+      warn.mock.restore();
+    }
+  });
+});
+
 describe('HTTP 연결부', () => {
   it('인증 헤더를 주입하고 응답 포맷은 그대로 반환한다', async () => {
     let called = false;
@@ -189,9 +221,6 @@ describe('HTTP 연결부', () => {
     await assert.rejects(request('https://outside.test'), /상대 경로/);
     await assert.rejects(request('//outside.test'), /상대 경로/);
   });
-});
-
-describe('경계 입력 추가 검증', () => {
   it('네트워크 오류와 401/500 상태를 전달한다', async () => {
     const offline = createHttpClient({
       baseUrl: '/api',
@@ -221,7 +250,7 @@ describe('경계 입력 추가 검증', () => {
       fetcher: async (_url, init) => {
         const headers = new Headers(init?.headers);
         assert.equal(headers.get('Content-Type'), 'application/json');
-        assert.equal(headers.get('TV'), 'demo');
+        assert.equal(headers.get('TV'), 'movie');
         assert.equal(init?.body, '{"title":"test"}');
         assert.equal(init?.credentials, 'include');
         return new Response('{}');
@@ -229,94 +258,8 @@ describe('경계 입력 추가 검증', () => {
     });
     await request('/items', {
       method: 'POST',
-      headers: { TV: 'demo' },
+      headers: mediaHeaders(3),
       body: '{"title":"test"}',
     });
-  });
-  it('상태와 정렬 값을 보존한다', () => {
-    assert.equal(
-      readListParams(new URLSearchParams('status=draft&sort=title')).status,
-      'draft',
-    );
-    assert.equal(
-      readListParams(new URLSearchParams('status=archived&sort=oldest')).sort,
-      'oldest',
-    );
-    assert.equal(
-      readDemoSession('{"id":"x","name":"관리자","role":"invalid"}'),
-      null,
-    );
-    const rows = [
-      {
-        id: '1',
-        title: '나',
-        category: '공지' as const,
-        status: 'draft' as const,
-        description: '',
-        author: '관리자',
-        updatedAt: '2026-09-01',
-      },
-      {
-        id: '2',
-        title: '가',
-        category: '공지' as const,
-        status: 'draft' as const,
-        description: '',
-        author: '관리자',
-        updatedAt: '2026-09-02',
-      },
-    ];
-    assert.equal(
-      filterEntries(rows, {
-        page: 1,
-        status: 'all',
-        search: '',
-        sort: 'oldest',
-      })[0].id,
-      '1',
-    );
-    assert.equal(
-      filterEntries(rows, {
-        page: 1,
-        status: 'all',
-        search: '',
-        sort: 'title',
-      })[0].id,
-      '2',
-    );
-  });
-});
-
-describe('시간대가 다른 콘텐츠 정렬', () => {
-  it('표시 문자열이 아닌 실제 시각으로 정렬한다', () => {
-    const entries = [
-      {
-        id: 'old',
-        title: '이전',
-        category: '공지' as const,
-        status: 'published' as const,
-        description: '',
-        author: '관리자',
-        updatedAt: '2026-09-09T10:00:00+09:00',
-      },
-      {
-        id: 'new',
-        title: '최근',
-        category: '공지' as const,
-        status: 'published' as const,
-        description: '',
-        author: '관리자',
-        updatedAt: '2026-09-09T02:00:00Z',
-      },
-    ];
-    assert.equal(
-      filterEntries(entries, {
-        page: 1,
-        status: 'all',
-        search: '',
-        sort: 'newest',
-      })[0].id,
-      'new',
-    );
   });
 });

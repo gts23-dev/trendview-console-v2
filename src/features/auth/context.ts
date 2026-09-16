@@ -1,11 +1,11 @@
 import { createContext, useContext } from 'react';
-import type { Session } from './model';
+import type { LoginInput, Session } from './model';
 
 export const AuthContext = createContext<{
   session: Session | null;
   loading: boolean;
   error: string | null;
-  signIn: (role: Session['role']) => Promise<void>;
+  signIn: (input: LoginInput) => Promise<void>;
   signOut: () => Promise<void>;
 } | null>(null);
 export function useAuth() {

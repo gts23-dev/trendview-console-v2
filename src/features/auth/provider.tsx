@@ -1,8 +1,9 @@
 import { useEffect, useState, type PropsWithChildren } from 'react';
+import { UNAUTHORIZED_EVENT } from '@/shared/api/client';
 import { queryClient } from '@/shared/query/query-client';
 import { authAdapter } from './adapter';
 import { AuthContext } from './context';
-import type { Session } from './model';
+import type { LoginInput, Session } from './model';
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
@@ -16,7 +17,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (mounted) setSession(value);
       })
       .catch(() => {
-        if (mounted) setError('브라우저 저장소에 접근하지 못했습니다.');
+        if (mounted) setError('로그인 상태를 확인하지 못했습니다.');
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -25,9 +26,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
       mounted = false;
     };
   }, []);
-  async function signIn(role: Session['role']) {
+  // 토큰 만료는 요청 계층에서 알려주고 세션 정리는 이 한 곳에서만 한다.
+  useEffect(() => {
+    function handleUnauthorized() {
+      queryClient.clear();
+      setSession(null);
+    }
+    window.addEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () =>
+      window.removeEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+  }, []);
+  async function signIn(input: LoginInput) {
     queryClient.clear();
-    setSession(await authAdapter.signIn(role));
+    setSession(await authAdapter.signIn(input));
   }
   async function signOut() {
     await authAdapter.signOut();
