@@ -1,17 +1,10 @@
-import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RequireAuth } from '@/features/auth';
 import { EmptyState } from '@/components/common/empty-state';
 import { AppLayout } from '@/components/layouts/app-layout';
 import { LoginPage } from '@/pages/login/page';
 
-const CollectPage = lazy(() =>
-  import('@/pages/collect/page').then((m) => ({ default: m.CollectPage })),
-);
-const ArticlesPage = lazy(() =>
-  import('@/pages/articles/page').then((m) => ({ default: m.ArticlesPage })),
-);
-
+// 화면은 라우트 단위로 나눠 받는다. 메뉴에도 같은 경로를 한 줄 추가한다.
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   {
@@ -21,8 +14,20 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { index: true, element: <Navigate to="/collect" replace /> },
-          { path: 'collect', element: <CollectPage /> },
-          { path: 'articles', element: <ArticlesPage /> },
+          {
+            path: 'collect',
+            lazy: () =>
+              import('@/pages/collect/page').then((m) => ({
+                Component: m.CollectPage,
+              })),
+          },
+          {
+            path: 'articles',
+            lazy: () =>
+              import('@/pages/articles/page').then((m) => ({
+                Component: m.ArticlesPage,
+              })),
+          },
           {
             path: '*',
             element: (
