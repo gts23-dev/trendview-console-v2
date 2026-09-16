@@ -13,7 +13,7 @@ export default defineConfig({
   // 화면에 표시하는 버전의 유일한 출처는 package.json이다.
   define: { __APP_VERSION__: JSON.stringify(version) },
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-  server: { port: 3300, strictPort: true },
+  server: { port: 8080, strictPort: true },
   build: {
     rollupOptions: {
       output: {

@@ -1,5 +1,5 @@
 {
-  "name": "console-boilerplate",
+  "name": "trendview-console",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -13,7 +13,7 @@
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "test": "node --import tsx --test tests/*.test.ts",
-    "test:coverage": "c8 --include=src/shared/api/*.ts --include=src/shared/errors/*.ts --include=src/shared/logger/*.ts --include=src/shared/query/*.ts --include=src/features/auth/model.ts --include=src/features/entries/api/*.ts --include=src/features/entries/model/filter-entries.ts --include=src/features/entries/model/schema.ts --include=src/pages/entries/*.ts --reporter=text --reporter=html --check-coverage --lines=80 --functions=80 --branches=80 node --import tsx --test tests/*.test.ts",
+    "test:coverage": "c8 --include=src/shared/api/*.ts --include=src/shared/errors/*.ts --include=src/shared/logger/*.ts --include=src/shared/query/*.ts --include=src/shared/utils/*.ts --include=src/features/auth/model.ts --include=src/features/medias/model/*.ts --include=src/features/articles/model/*.ts --reporter=text --reporter=html --check-coverage --lines=80 --functions=80 --branches=80 node --import tsx --test tests/*.test.ts",
     "preview": "vite preview --host 127.0.0.1",
     "test:e2e": "playwright test",
     "format:check": "prettier --check .",
@@ -28,6 +28,7 @@
     "lucide-react": "^0.556.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.3",
+    "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.3",
     "react-hook-form": "^7.68.0",
     "react-router-dom": "^7.13.0",
