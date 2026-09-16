@@ -6,7 +6,6 @@ import {
   AppError,
   getErrorMessage,
 } from '../src/shared/errors/app-error.ts';
-import { logger } from '../src/shared/logger/logger.ts';
 import { createAppQueryClient } from '../src/shared/query/query-client.ts';
 
 it('안전하게 정의한 오류만 화면에 표시하고 내부 오류는 기본 문구로 바꾼다', () => {
@@ -23,48 +22,6 @@ it('안전하게 정의한 오류만 화면에 표시하고 내부 오류는 기
       getErrorMessage(error),
       '요청을 처리하지 못했습니다. 다시 시도해 주세요.',
     );
-  }
-});
-
-it('로그는 허용된 진단 정보만 남기고 요청 내용과 자격 증명을 버린다', () => {
-  const output = mock.method(console, 'error', () => {});
-  try {
-    logger.error('저장 실패', {
-      status: 500,
-      code: 'HTTP_ERROR',
-      ...{
-        token: 'secret',
-        variables: { title: 'private' },
-        error: new Error('secret'),
-      },
-    });
-    assert.deepEqual(output.mock.calls[0].arguments[1], {
-      status: 500,
-      code: 'HTTP_ERROR',
-    });
-    assert.match(
-      String(output.mock.calls[0].arguments[0]),
-      /^\[.+\] \[ERROR\] 저장 실패$/,
-    );
-  } finally {
-    output.mock.restore();
-  }
-});
-
-it('안내와 경고 로그는 레벨과 안전한 집계 값만 출력한다', () => {
-  const info = mock.method(console, 'info', () => {});
-  const warn = mock.method(console, 'warn', () => {});
-  try {
-    logger.info('조회 완료', { count: 2, durationMs: 10 });
-    logger.warn('재시도 필요');
-    assert.deepEqual(info.mock.calls[0].arguments[1], {
-      count: 2,
-      durationMs: 10,
-    });
-    assert.deepEqual(warn.mock.calls[0].arguments[1], {});
-  } finally {
-    info.mock.restore();
-    warn.mock.restore();
   }
 });
 

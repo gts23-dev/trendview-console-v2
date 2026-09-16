@@ -1,5 +1,3 @@
-import { logger } from '@/shared/logger/logger';
-
 // UI/UX를 확정하기 전에는 변경 요청이 서버에 도달하지 않아야 한다. 개발용
 // 서버가 없어 운영 데이터에 그대로 붙기 때문이다. 설정값으로 끄고 켜는 대신
 // 쓰기 경로가 없는 fetcher를 주입해 능력 자체를 없앤다.
@@ -45,9 +43,7 @@ export function createReadOnlyFetcher(
           ? input.href
           : input.url;
     if (isReadRequest(method, url)) return inner(input, init);
-    logger.warn(`변경 요청을 차단했습니다: ${method.toUpperCase()} ${url}`, {
-      code: 'WRITE_BLOCKED',
-    });
+    console.warn(`변경 요청을 차단했습니다: ${method.toUpperCase()} ${url}`);
     return new Response(null, { status: 204 });
   };
 }

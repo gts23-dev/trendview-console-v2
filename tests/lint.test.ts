@@ -20,32 +20,32 @@ it('페이지는 공개 feature API로 화면만 조립한다', async () => {
     "import { request } from '@/shared/api/http-client';",
     "import { queryClient } from '@/shared/query/query-client';",
     "import { useQuery } from '@tanstack/react-query';",
-    "import { useEntryList } from '@/features/entries/hooks/use-entries';",
-    "import { useEntryList } from '../../features/entries';",
+    "import { useArticleList } from '@/features/articles/hooks/use-articles';",
+    "import { useArticleList } from '../../features/articles';",
     "import { OtherPage } from '@/pages/other/page';",
   ]) {
     assert.equal(
-      hasBoundaryError(await lint(source, 'src/pages/dashboard/page.tsx')),
+      hasBoundaryError(await lint(source, 'src/pages/collect/page.tsx')),
       true,
       source,
     );
   }
 
   const allowed = await lint(
-    "import { useEntryList } from '@/features/entries'; import { PageHeader } from '@/components/common/page-header'; export function DashboardPage() { useEntryList(); return PageHeader ? null : null; }",
-    'src/pages/dashboard/page.tsx',
+    "import { useArticleList } from '@/features/articles'; import { PageHeader } from '@/components/common/page-header'; export function CollectPage() { useArticleList(); return PageHeader ? null : null; }",
+    'src/pages/collect/page.tsx',
   );
   assert.equal(allowed.errorCount, 0, JSON.stringify(allowed.messages));
 });
 
 it('feature는 pages와 routing에 의존하지 않는다', async () => {
   for (const source of [
-    "import { EntryPage } from '@/pages/entries/page';",
+    "import { CollectPage } from '@/pages/collect/page';",
     "import { router } from '@/routing/app-router';",
   ]) {
     assert.equal(
       hasBoundaryError(
-        await lint(source, 'src/features/entries/hooks/use-entries.ts'),
+        await lint(source, 'src/features/articles/hooks/use-articles.ts'),
       ),
       true,
       source,
@@ -55,23 +55,23 @@ it('feature는 pages와 routing에 의존하지 않는다', async () => {
 
 it('다른 feature는 공개 진입점으로만 참조한다', async () => {
   const internal = await lint(
-    "import { canEdit } from '@/features/auth/model';",
-    'src/features/entries/api/entries.ts',
+    "import { isAdminGrade } from '@/features/auth/model';",
+    'src/features/articles/api/articles.ts',
   );
   assert.equal(hasBoundaryError(internal), true);
 
   const publicApi = await lint(
-    "import { canEdit } from '@/features/auth'; export const editable = canEdit(null);",
-    'src/features/entries/api/entries.ts',
+    "import { isAdminGrade } from '@/features/auth'; export const editable = isAdminGrade(null);",
+    'src/features/articles/api/articles.ts',
   );
   assert.equal(publicApi.errorCount, 0, JSON.stringify(publicApi.messages));
 });
 
 it('shared는 업무와 화면 계층을 알지 못한다', async () => {
   for (const source of [
-    "import { useEntryList } from '@/features/entries';",
+    "import { useArticleList } from '@/features/articles';",
     "import { Button } from '@/components/ui/button';",
-    "import { DashboardPage } from '@/pages/dashboard/page';",
+    "import { CollectPage } from '@/pages/stats/counts/page';",
   ]) {
     assert.equal(
       hasBoundaryError(await lint(source, 'src/shared/utils/example.ts')),
@@ -101,7 +101,7 @@ it('기본 UI와 공통 조합 UI에는 업무 기능을 넣지 않는다', asyn
     assert.equal(
       hasBoundaryError(
         await lint(
-          "import { useEntryList } from '@/features/entries';",
+          "import { useArticleList } from '@/features/articles';",
           filePath,
         ),
       ),
@@ -114,7 +114,7 @@ it('기본 UI와 공통 조합 UI에는 업무 기능을 넣지 않는다', asyn
 it('feature 내부 상대 참조와 layout의 공개 auth 참조는 허용한다', async () => {
   const feature = await lint(
     "import type { Entry } from '../model/types'; export const item: Entry | null = null;",
-    'src/features/entries/components/entry-detail.tsx',
+    'src/features/articles/components/article-detail.tsx',
   );
   assert.equal(feature.errorCount, 0, JSON.stringify(feature.messages));
 

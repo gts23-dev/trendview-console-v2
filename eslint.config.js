@@ -40,7 +40,7 @@ export default tseslint.config(
     files: ['src/**/*.{ts,tsx}'],
     plugins: { project: projectRules },
     rules: {
-      'no-console': 'error',
+      'no-console': ['error', { allow: ['warn', 'error'] }],
       'project/boundaries': 'error',
       'project/file-name': 'error',
       'project/error-toast': 'error',
@@ -58,7 +58,6 @@ export default tseslint.config(
       ],
     },
   },
-  { files: ['src/shared/logger/logger.ts'], rules: { 'no-console': 'off' } },
   {
     files: ['src/features/*/index.ts'],
     rules: { 'react-refresh/only-export-components': 'off' },

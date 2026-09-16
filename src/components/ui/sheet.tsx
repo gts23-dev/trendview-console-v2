@@ -90,7 +90,7 @@ function SheetContent({
         {close && (
           <SheetPrimitive.Close
             data-slot="sheet-close"
-            className="absolute end-5 top-4 cursor-pointer rounded-sm opacity-60 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary"
+            className="absolute end-3 top-3 grid size-8 cursor-pointer place-items-center rounded-md opacity-60 ring-offset-background transition-opacity hover:bg-muted hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">닫기</span>

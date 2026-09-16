@@ -9,7 +9,7 @@ UI는 Metronic 9.4.7을 기반으로 하며 React, TypeScript, Vite, Tailwind CS
 
 ## 현재 상태
 
-**Phase 1 완료.** 
+**Phase 1 완료.**
 
 ### 조회만 가능합니다
 
@@ -46,7 +46,6 @@ src/
     api/                HTTP client, 토큰 보관, 변경 요청 차단
     query/              QueryClient 공통 설정
     errors/             공통 오류
-    logger/             공통 로그
     utils/              공통 순수 함수
   features/
     auth/               로그인, 세션, 등급 판단

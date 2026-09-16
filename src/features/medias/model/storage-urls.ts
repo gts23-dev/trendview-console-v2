@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { logger } from '@/shared/logger/logger';
 
 const storageUrlsSchema = z.record(z.string(), z.string().url());
 
@@ -17,11 +16,8 @@ export function parseStorageUrls(raw: string | undefined) {
   }
   // 조용히 비우면 썸네일만 안 보이고 원인을 알 수 없다. .env의 값이 여러 줄이면
   // 첫 줄만 읽히므로 한 줄로 적어야 한다.
-  logger.warn(
+  console.warn(
     'VITE_MEDIA_STORAGE_URLS를 읽지 못해 썸네일이 비어 보일 수 있습니다.',
-    {
-      code: 'INVALID_STORAGE_URLS',
-    },
   );
   return {};
 }
