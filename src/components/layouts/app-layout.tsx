@@ -21,7 +21,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 
-// 어느 서버를 보고 있는지 헤더에 표시한다. 개발 화면으로 착각해 운영 데이터를 변경하는 사고를 막기 위한 값이다. 지정은 .env의 VITE_ENV_LABEL.
+// 운영 API를 개발 화면으로 착각해 데이터를 건드리는 사고를 막는 표시다.
 const ENV_LABEL =
   import.meta.env.VITE_ENV_LABEL || (import.meta.env.PROD ? '' : 'LOCAL');
 
@@ -42,6 +42,7 @@ function Navigation({ onNavigate }: NavigationProps) {
           </p>
           <div className="space-y-1">
             {group.items
+              // 메뉴 숨김은 표시 제어일 뿐이고 인가는 서버가 검증한다.
               .filter(
                 (item) =>
                   !('adminOnly' in item && item.adminOnly) ||

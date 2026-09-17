@@ -4,7 +4,7 @@ import { EmptyState } from '@/components/common/empty-state';
 import { AppLayout } from '@/components/layouts/app-layout';
 import { LoginPage } from '@/pages/login/page';
 
-// 화면은 라우트 단위로 나눠 받는다. 메뉴에도 같은 경로를 한 줄 추가한다.
+// 화면을 붙일 때 `config/menu.config.ts`에도 같은 경로를 한 줄 추가한다.
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   {
@@ -26,6 +26,13 @@ export const router = createBrowserRouter([
             lazy: () =>
               import('@/pages/articles/page').then((m) => ({
                 Component: m.ArticlesPage,
+              })),
+          },
+          {
+            path: 'settings/topics',
+            lazy: () =>
+              import('@/pages/settings/topics/page').then((m) => ({
+                Component: m.TopicsPage,
               })),
           },
           {
