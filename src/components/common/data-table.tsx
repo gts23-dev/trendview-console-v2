@@ -91,7 +91,12 @@ export function DataTable<TData extends object>({
         </CardTable>
         <CardFooter>
           <DataGridPagination
-            info={`{from}-{to} / 총 ${formatCount(totalCount)}건`}
+            // 0건이면 {from}-{to}가 "1-0"으로 나온다.
+            info={
+              totalCount > 0
+                ? `{from}-{to} / 총 ${formatCount(totalCount)}건`
+                : '총 0건'
+            }
           />
         </CardFooter>
       </Card>

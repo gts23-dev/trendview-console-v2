@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Plus, Search, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useMediaScope } from '@/features/medias';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/common/data-table';
 import { PageHeader } from '@/components/common/page-header';
+import { SearchField } from '@/components/common/search-field';
 import { createTopicColumns } from '../columns/topic-columns';
 import { useSaveTopic, useTopicList } from '../hooks/use-topics';
 import {
@@ -69,22 +69,23 @@ export function TopicListView() {
             ? '검색 결과가 없습니다.'
             : '등록된 카테고리가 없습니다.'
         }
-        heading={
-          <TopicSearchField
-            search={filters.search}
-            onSearch={(search) => apply({ search })}
-          />
-        }
         toolbar={
-          <Button
-            onClick={() => {
-              setEditing(null);
-              setFormOpen(true);
-            }}
-          >
-            <Plus />
-            카테고리 추가
-          </Button>
+          <>
+            <Button
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+            >
+              <Plus />
+              카테고리 추가
+            </Button>
+            <SearchField
+              value={filters.search}
+              placeholder="카테고리 검색"
+              onSearch={(search) => apply({ search })}
+            />
+          </>
         }
       />
 
@@ -107,49 +108,5 @@ export function TopicListView() {
         }}
       />
     </div>
-  );
-}
-
-interface TopicSearchFieldProps {
-  search: string;
-  onSearch: (search: string) => void;
-}
-
-function TopicSearchField({ search, onSearch }: TopicSearchFieldProps) {
-  // 검색어는 Enter로 확정할 때까지 입력 중 상태로 둔다.
-  const [value, setValue] = useState(search);
-  useEffect(() => setValue(search), [search]);
-
-  return (
-    <form
-      className="relative"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSearch(value.trim());
-      }}
-    >
-      <Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        value={value}
-        placeholder="카테고리 검색"
-        className="w-48 ps-9"
-        onChange={(event) => setValue(event.target.value)}
-      />
-      {value.length > 0 && (
-        <Button
-          type="button"
-          mode="icon"
-          variant="ghost"
-          aria-label="검색어 지우기"
-          className="absolute end-1.5 top-1/2 size-6 -translate-y-1/2"
-          onClick={() => {
-            setValue('');
-            onSearch('');
-          }}
-        >
-          <X />
-        </Button>
-      )}
-    </form>
   );
 }

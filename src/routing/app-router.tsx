@@ -36,6 +36,13 @@ export const router = createBrowserRouter([
               })),
           },
           {
+            path: 'settings/tag-ignores',
+            lazy: () =>
+              import('@/pages/settings/tag-ignores/page').then((m) => ({
+                Component: m.TagIgnoresPage,
+              })),
+          },
+          {
             path: '*',
             element: (
               <EmptyState
