@@ -57,7 +57,7 @@ export function TopicFormDialog({
             </DialogTitle>
             <DialogDescription>
               {topic
-                ? '이름을 바꾸면 이 카테고리로 등록한 키워드(PK)의 표시도 함께 바뀝니다.'
+                ? '카테고리 이름을 바꿉니다.'
                 : '현재 선택한 매체에 카테고리를 추가합니다.'}
             </DialogDescription>
           </DialogHeader>
