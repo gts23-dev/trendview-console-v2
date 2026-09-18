@@ -13,6 +13,11 @@ export class ApiError extends AppError {
   constructor(
     message: string,
     readonly status: number,
+    /**
+     * 서버가 준 실패 사유. 사용자에게 보여주지 않고 진단 로그에만 남긴다.
+     * 응답 본문을 통째로 남기면 자격 증명까지 콘솔에 남으므로 문구만 담는다.
+     */
+    readonly detail?: string,
   ) {
     super(message, 'HTTP_ERROR');
     this.name = 'ApiError';

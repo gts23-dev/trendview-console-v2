@@ -7,6 +7,8 @@ function logRequestError(message: string, error: unknown) {
     message,
     error instanceof AppError ? error.code : 'UNEXPECTED_ERROR',
     error instanceof ApiError ? error.status : '',
+    // 사용자에게는 일반 문구를 띄우고 서버가 준 사유는 여기에만 남긴다.
+    error instanceof ApiError ? (error.detail ?? '') : '',
   );
 }
 

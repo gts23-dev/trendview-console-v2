@@ -1,5 +1,20 @@
 import { ApiError } from '@/shared/errors/app-error';
 
+/**
+ * 실패 응답에서 서버가 준 문구만 꺼낸다. 기존 콘솔이 쓰던 자리와 같다
+ * (`data.error.message`). 본문 전체는 남기지 않는다.
+ */
+async function readErrorDetail(response: Response) {
+  try {
+    const body: unknown = await response.clone().json();
+    const error = (body as { error?: unknown })?.error;
+    const message = (error as { message?: unknown })?.message;
+    return typeof message === 'string' ? message : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 interface ClientOptions {
   baseUrl: string;
   getHeaders?: () => HeadersInit;
@@ -53,6 +68,7 @@ export function createHttpClient({
             ? '접근 권한이 없습니다.'
             : '요청을 처리하지 못했습니다.',
         response.status,
+        await readErrorDetail(response),
       );
     if (response.status === 204) return undefined as T;
     try {
