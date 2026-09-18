@@ -14,6 +14,7 @@ export function createTopicColumns(
     {
       id: 'no',
       header: 'NO.',
+      meta: { headerClassName: 'text-center', cellClassName: 'text-center' },
       size: 90,
       cell: ({ row }) => (
         <span className="text-muted-foreground tabular-nums">
@@ -31,6 +32,7 @@ export function createTopicColumns(
     {
       accessorKey: 'createdAt',
       header: '등록일',
+      meta: { headerClassName: 'text-center', cellClassName: 'text-center' },
       size: 200,
       cell: ({ row }) => (
         <span className="text-muted-foreground tabular-nums">
@@ -42,7 +44,7 @@ export function createTopicColumns(
       id: 'actions',
       header: '수정',
       size: 80,
-      meta: { headerClassName: 'text-right', cellClassName: 'text-right' },
+      meta: { headerClassName: 'text-center', cellClassName: 'text-center' },
       cell: ({ row }) => (
         <Button
           variant="ghost"

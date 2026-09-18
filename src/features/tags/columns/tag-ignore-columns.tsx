@@ -25,6 +25,7 @@ export function createTagIgnoreColumns({
     {
       id: 'no',
       header: 'NO.',
+      meta: { headerClassName: 'text-center', cellClassName: 'text-center' },
       size: 90,
       cell: ({ row }) => (
         <span className="text-muted-foreground tabular-nums">
@@ -32,7 +33,12 @@ export function createTagIgnoreColumns({
         </span>
       ),
     },
-    { accessorKey: 'mediaName', header: '매체', size: 140 },
+    {
+      accessorKey: 'mediaName',
+      header: '매체',
+      size: 140,
+      meta: { headerClassName: 'text-center', cellClassName: 'text-center' },
+    },
     {
       accessorKey: 'tag',
       header: '태그',
@@ -43,6 +49,7 @@ export function createTagIgnoreColumns({
     {
       id: 'ignore',
       header: '적용여부',
+      meta: { headerClassName: 'text-center', cellClassName: 'text-center' },
       size: 110,
       cell: ({ row }) => (
         <Switch
@@ -57,7 +64,7 @@ export function createTagIgnoreColumns({
       id: 'actions',
       header: '삭제',
       size: 80,
-      meta: { headerClassName: 'text-right', cellClassName: 'text-right' },
+      meta: { headerClassName: 'text-center', cellClassName: 'text-center' },
       cell: ({ row }) => (
         <Button
           variant="ghost"

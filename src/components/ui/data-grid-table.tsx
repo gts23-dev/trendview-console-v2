@@ -12,6 +12,7 @@ import { cva } from 'class-variance-authority';
 import { cn } from '@/shared/utils/class-name';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDataGrid } from '@/components/ui/data-grid';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const headerCellSpacingVariants = cva('', {
   variants: {
@@ -266,7 +267,12 @@ function DataGridTableBodyRowSkeletonCell<TData>({
           : '',
       )}
     >
-      {children}
+      {/* 수정: 컬럼이 meta.skeleton을 주지 않으면 원본은 빈 칸을 그린다. 로딩 중에
+          높이만 있는 줄이 쌓여 멈춘 것처럼 보이므로 기본 막대를 둔다.
+          inline-block이라 칸의 text-align을 그대로 따른다. */}
+      {children ?? (
+        <Skeleton className="inline-block h-4 w-[60%] align-middle" />
+      )}
     </td>
   );
 }
