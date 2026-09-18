@@ -167,10 +167,11 @@ describe('플랫폼 표기', () => {
     assert.equal(getPlatformLabel('naver-blog'), '네이버블로그');
     assert.equal(getPlatformLabel('threads'), 'threads');
   });
-  it('심볼이 같은 네이버 계열은 종류 글자로 구분한다', () => {
+  it('같은 네이버라도 블로그와 뉴스는 마크만으로 구분된다', () => {
     const blog = getPlatformBadge('naver-blog');
     const news = getPlatformBadge('naver-news');
-    assert.equal(blog.mark, news.mark);
+    // 키워드 목록처럼 글자 없이 마크만 보이는 자리가 있다.
+    assert.notEqual(blog.mark, news.mark);
     assert.notEqual(blog.text, news.text);
   });
   it('배지는 예외 없이 로고와 종류 글자를 함께 가진다', () => {

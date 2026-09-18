@@ -1,7 +1,11 @@
+import { cn } from '@/shared/utils/class-name';
+
 interface PlatformMarkProps {
   /** `getPlatformBadge`가 돌려주는 브랜드 키 */
   mark: string;
   className?: string;
+  /** 배경 사각형 없이 브랜드 색 심볼만 그린다. 밝은 면에서만 쓴다. */
+  plain?: boolean;
 }
 
 /**
@@ -21,6 +25,17 @@ const MARKS: Record<string, React.ReactNode> = {
         d="M27.2045 24.6355L20.5312 15H15V33H20.7955V23.3679L27.4688 33H33V15H27.2045V24.6355Z"
         fill="#ffffff"
       />
+    </>
+  ),
+  // 네이버 블로그는 뉴스와 같은 네이버라서, 글자 없이 마크만 보이는 자리에서는
+  // 구분이 안 된다. 블로그 심볼을 따로 쓴다. 원본이 77 기준이라 축소해 얹는다.
+  'naver-blog': (
+    <>
+      <rect width="48" height="48" rx="11" fill="#03C75A" />
+      <g transform="scale(0.62338)" fill="#ffffff">
+        <path d="M58.2508 63.9058H61.3601V13.0204H58.2508V63.9058Z" />
+        <path d="M31.0231 53.7819C25.9871 53.7819 21.9057 49.5006 21.9057 44.2179C21.9057 38.9366 25.9871 34.6553 31.0231 34.6553C36.0577 34.6553 40.1404 38.9366 40.1404 44.2179C40.1404 49.5006 36.0577 53.7819 31.0231 53.7819ZM32.0417 27.3499C28.4444 27.3499 25.1391 28.6419 22.4804 30.7926V16.6473H14.3564V60.2793H22.4804V57.6446C25.1391 59.7953 28.4444 61.0859 32.0417 61.0859C40.7897 61.0859 47.8804 53.5339 47.8804 44.2179C47.8804 34.9019 40.7897 27.3499 32.0417 27.3499Z" />
+      </g>
     </>
   ),
   youtube: (
@@ -154,12 +169,52 @@ const MARKS: Record<string, React.ReactNode> = {
   ),
 };
 
-export function PlatformMark({ mark, className }: PlatformMarkProps) {
+/**
+ * 배경을 지우면 심볼만 남는데, 브랜드마다 앱 아이콘 여백 규칙이 달라 크기가
+ * 제각각이다(네이버 N은 18, 유튜브는 36). 실제 심볼 크기를 재서 긴 변이 32가
+ * 되도록 맞추고 가운데로 옮긴다. 배경이 있을 때는 원본 여백이 맞으므로
+ * 적용하지 않는다.
+ */
+const PLAIN_TRANSFORMS: Record<string, string> = {
+  naver: 'translate(-18.67,-18.67) scale(1.778)',
+  'naver-blog': 'translate(0.13,-0.18) scale(1.0095)',
+  // 유튜브만 가로로 납작해서 긴 변을 맞추면 높이가 25로 낮다. 높이를 28로 맞춘다.
+  youtube: 'translate(-2.67,-2.22) scale(1.111)',
+  google: 'translate(1.74,1.41) scale(0.941)',
+  instagram: 'translate(2.04,2.04) scale(0.9169)',
+  facebook: 'translate(3.86,0.31) scale(0.8269)',
+  x: 'translate(2.67,2.93) scale(0.889)',
+  tiktok: 'translate(0.37,0.32) scale(0.9846)',
+};
+
+/** 배경을 지웠을 때 흰색 심볼에 입히는 브랜드 색. */
+const PLAIN_COLORS: Record<string, string> = {
+  naver: '#03C75A',
+  'naver-blog': '#03C75A',
+  youtube: '#FF0000',
+  facebook: '#1877F2',
+  instagram: '#E4405F',
+  x: '#000000',
+  tiktok: '#000000',
+};
+
+export function PlatformMark({ mark, className, plain }: PlatformMarkProps) {
   const shape = MARKS[mark];
   if (!shape) return null;
   return (
-    <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
-      {shape}
+    <svg
+      viewBox="0 0 48 48"
+      aria-hidden="true"
+      // 마크마다 배경과 심볼을 따로 들고 있지 않아도 되도록 CSS로 걷어낸다.
+      // 배경 사각형을 숨기고, 배경 위에 흰색으로 그려 둔 심볼만 브랜드 색으로
+      // 바꾼다. 구글처럼 심볼이 제 색을 가진 마크는 그대로 남는다.
+      className={cn(
+        className,
+        plain && "[&_[fill='#ffffff']]:fill-current [&_rect]:hidden",
+      )}
+      style={plain ? { color: PLAIN_COLORS[mark] } : undefined}
+    >
+      {plain ? <g transform={PLAIN_TRANSFORMS[mark]}>{shape}</g> : shape}
     </svg>
   );
 }
