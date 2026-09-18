@@ -82,29 +82,27 @@ export function TagIgnoreListView() {
             : '제외 목록이 비어 있습니다.'
         }
         heading={
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Select
-              value={filters.ignore || 'all'}
-              onValueChange={(value) =>
-                apply({
-                  ignore: (value === 'all'
-                    ? ''
-                    : value) as TagIgnoreFilters['ignore'],
-                })
-              }
-            >
-              <SelectTrigger className="w-32" aria-label="제외여부">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {IGNORE_FILTERS.map((option) => (
-                  <SelectItem key={option.value} value={option.value || 'all'}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={filters.ignore || 'all'}
+            onValueChange={(value) =>
+              apply({
+                ignore: (value === 'all'
+                  ? ''
+                  : value) as TagIgnoreFilters['ignore'],
+              })
+            }
+          >
+            <SelectTrigger className="w-32" aria-label="제외여부">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {IGNORE_FILTERS.map((option) => (
+                <SelectItem key={option.value} value={option.value || 'all'}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         }
         toolbar={
           <SearchField

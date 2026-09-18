@@ -17,11 +17,10 @@ export function ScrapButton() {
     <>
       <Button
         variant="outline"
-        size="sm"
         disabled={mediaId === null}
         onClick={() => setConfirming(true)}
       >
-        <DatabaseBackup className="size-4" />
+        <DatabaseBackup />
         수집 실행
       </Button>
       <ConfirmDialog

@@ -79,7 +79,11 @@ export function DataTable<TData extends object>({
       <Card>
         {(heading || toolbar) && (
           <CardHeader>
-            <CardHeading>{heading}</CardHeading>
+            {/* CardHeading은 세로로 쌓는다. 조건은 나란히 놓이므로 여기서
+                가로로 눕혀 화면마다 감싸개를 만들지 않게 한다. */}
+            <CardHeading className="flex flex-wrap items-center gap-2.5">
+              {heading}
+            </CardHeading>
             {toolbar && <CardToolbar>{toolbar}</CardToolbar>}
           </CardHeader>
         )}
