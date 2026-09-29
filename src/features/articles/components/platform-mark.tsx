@@ -15,7 +15,7 @@ interface PlatformMarkProps {
  * 네이버는 로고 파일이 어두운 바탕에 초록 N이라 배지 위에서 묻혀서, 앱 아이콘과
  * 같은 초록 바탕에 흰 N으로 맞췄다.
  */
-const MARKS: Record<string, React.ReactNode> = {
+const MARKS = {
   naver: (
     <>
       <rect width="48" height="48" rx="11" fill="#03C75A" />
@@ -167,15 +167,18 @@ const MARKS: Record<string, React.ReactNode> = {
       />
     </>
   ),
-};
+} satisfies Record<string, React.ReactNode>;
+
+type MarkName = keyof typeof MARKS;
 
 /**
  * 배경을 지우면 심볼만 남는데, 브랜드마다 앱 아이콘 여백 규칙이 달라 크기가
  * 제각각이다(네이버 N은 18, 유튜브는 36). 실제 심볼 크기를 재서 긴 변이 32가
  * 되도록 맞추고 가운데로 옮긴다. 배경이 있을 때는 원본 여백이 맞으므로
- * 적용하지 않는다.
+ * 적용하지 않는다. MARKS를 빠짐없이 덮어야 한다. 빠진 마크는 정규화 없이
+ * 원본 배율로 그려져 표에서 혼자 커진다.
  */
-const PLAIN_TRANSFORMS: Record<string, string> = {
+const PLAIN_TRANSFORMS: Record<MarkName, string> = {
   naver: 'translate(-18.67,-18.67) scale(1.778)',
   'naver-blog': 'translate(0.13,-0.18) scale(1.0095)',
   // 유튜브만 가로로 납작해서 긴 변을 맞추면 높이가 25로 낮다. 높이를 28로 맞춘다.
@@ -187,8 +190,8 @@ const PLAIN_TRANSFORMS: Record<string, string> = {
   tiktok: 'translate(0.37,0.32) scale(0.9846)',
 };
 
-/** 배경을 지웠을 때 흰색 심볼에 입히는 브랜드 색. */
-const PLAIN_COLORS: Record<string, string> = {
+/** 배경을 지웠을 때 흰색 심볼에 입히는 브랜드 색. 구글처럼 심볼이 제 색을 가진 마크는 없다. */
+const PLAIN_COLORS: Partial<Record<MarkName, string>> = {
   naver: '#03C75A',
   'naver-blog': '#03C75A',
   youtube: '#FF0000',
@@ -199,8 +202,8 @@ const PLAIN_COLORS: Record<string, string> = {
 };
 
 export function PlatformMark({ mark, className, plain }: PlatformMarkProps) {
-  const shape = MARKS[mark];
-  if (!shape) return null;
+  if (!(mark in MARKS)) return null;
+  const name = mark as MarkName;
   return (
     <svg
       viewBox="0 0 48 48"
@@ -212,9 +215,13 @@ export function PlatformMark({ mark, className, plain }: PlatformMarkProps) {
         className,
         plain && "[&_[fill='#ffffff']]:fill-current [&_rect]:hidden",
       )}
-      style={plain ? { color: PLAIN_COLORS[mark] } : undefined}
+      style={plain ? { color: PLAIN_COLORS[name] } : undefined}
     >
-      {plain ? <g transform={PLAIN_TRANSFORMS[mark]}>{shape}</g> : shape}
+      {plain ? (
+        <g transform={PLAIN_TRANSFORMS[name]}>{MARKS[name]}</g>
+      ) : (
+        MARKS[name]
+      )}
     </svg>
   );
 }

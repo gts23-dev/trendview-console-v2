@@ -36,6 +36,13 @@ export const router = createBrowserRouter([
               })),
           },
           {
+            path: 'settings/base-keywords',
+            lazy: () =>
+              import('@/pages/settings/base-keywords/page').then((m) => ({
+                Component: m.BaseKeywordsPage,
+              })),
+          },
+          {
             path: 'settings/tag-ignores',
             lazy: () =>
               import('@/pages/settings/tag-ignores/page').then((m) => ({

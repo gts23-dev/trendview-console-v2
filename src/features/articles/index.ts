@@ -17,6 +17,7 @@ export {
 export {
   getPlatformBadge,
   getPlatformLabel,
+  sortPlatforms,
   PLATFORM_FILTERS,
 } from './model/platforms';
 export type { ArticleListItem, ArticleListResult } from './model/types';

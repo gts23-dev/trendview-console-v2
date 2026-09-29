@@ -23,8 +23,10 @@ export function getMediaCode(mediaId: number) {
 }
 
 /**
- * 매체별 데이터를 구분하는 헤더. 값은 같은데 이름이 엔드포인트 계열마다
- * 다르다. 콘텐츠는 `TV`, 설정과 통계는 `c9`다. 기존 콘솔도 그렇게 나뉜다.
+ * 매체별 데이터를 구분하는 헤더. 콘텐츠는 `TV`, 설정과 통계는 `c9`다.
+ * 매체를 추가하면 위 MEDIA_CODES에 코드를 반드시 넣는다. 콘텐츠 조회는 이
+ * 헤더로 범위를 정해서, 코드가 없으면 헤더가 빠지고 500이 난다. 설정은
+ * `media_id`로 돌아가므로 빠뜨려도 멀쩡해 보인다.
  */
 export function mediaHeaders(
   mediaId: number,

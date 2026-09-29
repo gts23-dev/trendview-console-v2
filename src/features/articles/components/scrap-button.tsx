@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DatabaseBackup } from 'lucide-react';
 import { toast } from 'sonner';
+import { isAdminGrade, useAuth } from '@/features/auth';
 import { useMediaScope } from '@/features/medias';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
@@ -8,11 +9,14 @@ import { ConfirmDialog } from '@/components/common/confirm-dialog';
 /**
  * 선택한 매체의 등록 키워드로 즉시 수집을 돌린다. 평소에는 예약 작업이 돌고,
  * 이 버튼은 키워드를 새로 넣었을 때처럼 기다리지 않고 채우고 싶을 때 쓴다.
- * 기존 콘솔에서는 주석 처리된 상태였다.
+ * 수집정보 화면에서는 기존 콘솔에서도 주석 처리된 상태였다.
  */
 export function ScrapButton() {
+  const { session } = useAuth();
   const { mediaId } = useMediaScope();
   const [confirming, setConfirming] = useState(false);
+  // 기존 콘솔도 등급 0에게는 숨긴다(BaseKeyword.vue:117). 실제 인가는 서버 몫이다.
+  if (!isAdminGrade(session)) return null;
   return (
     <>
       <Button

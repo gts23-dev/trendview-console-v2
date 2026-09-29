@@ -33,6 +33,16 @@ export function getPlatformBadge(platform: string) {
   );
 }
 
+/** 목록에서 마크가 행마다 같은 순서로 서도록 고정한다. API 응답 순서는 일정하지 않다. */
+export function sortPlatforms(platforms: string[]) {
+  const order = Object.keys(PLATFORM_LABELS);
+  const rank = (platform: string) => {
+    const index = order.indexOf(platform);
+    return index === -1 ? order.length : index;
+  };
+  return [...platforms].sort((a, b) => rank(a) - rank(b));
+}
+
 export function getPlatformLabel(platform: string) {
   return PLATFORM_LABELS[platform] ?? platform;
 }
