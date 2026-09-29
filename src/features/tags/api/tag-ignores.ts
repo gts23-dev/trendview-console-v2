@@ -36,7 +36,7 @@ export async function getTagIgnores(
   // 전체를 볼 때는 조건 자체를 보내지 않는다. 기존 콘솔도 null을 빼고 보낸다.
   if (filters.ignore) query.set('is_ignore', filters.ignore);
   const data = await request<unknown>(`api/v1/tags/ignore?${query}`, {
-    headers: mediaHeaders(mediaId, 'c9'),
+    headers: await mediaHeaders(mediaId, 'c9'),
     signal,
   });
   const parsed = listSchema.safeParse(data);

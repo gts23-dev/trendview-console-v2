@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 import { isAdminGrade } from '../src/features/auth/model.ts';
 import {
-  getMediaCode,
-  mediaHeaders,
+  createMediaCodes,
+  mediaCodeHeaders,
+  toMediaCode,
 } from '../src/features/medias/model/media-codes.ts';
 import { pickMediaId } from '../src/features/medias/model/media-scope.ts';
 import { parseStorageUrls } from '../src/features/medias/model/storage-urls.ts';
@@ -54,12 +55,50 @@ describe('전역 매체 범위', () => {
 });
 
 describe('매체 코드와 스토리지 URL', () => {
-  it('매체 id를 서버가 요구하는 TV 헤더 값으로 바꾼다', () => {
-    assert.equal(getMediaCode(5), 'cultureland');
-    assert.equal(getMediaCode(999), '');
-    assert.deepEqual(mediaHeaders(3), { TV: 'movie' });
-    // 모르는 매체에 빈 헤더를 보내지 않는다.
-    assert.deepEqual(mediaHeaders(999), {});
+  it('서버 schema에서 헤더에 쓰는 코드를 뽑는다', () => {
+    assert.equal(toMediaCode('trendview-cultureland'), 'cultureland');
+    // 접두어 규칙이 바뀌어도 값을 버리지 않는다.
+    assert.equal(toMediaCode('movie'), 'movie');
+    assert.equal(toMediaCode(null), '');
+  });
+  it('코드가 없으면 콘텐츠는 끊고 설정은 그대로 보낸다', () => {
+    assert.deepEqual(mediaCodeHeaders('movie', 'TV'), { TV: 'movie' });
+    assert.deepEqual(mediaCodeHeaders('movie', 'c9'), { c9: 'movie' });
+    // TV는 조회 범위를 정하는 값이라 빠지면 서버가 500을 낸다.
+    assert.throws(() => mediaCodeHeaders('', 'TV'), /매체 정보/);
+    // c9는 서버가 무시하므로 없이 보내도 media_id로 조회된다.
+    assert.deepEqual(mediaCodeHeaders('', 'c9'), {});
+  });
+  it('매체 목록은 한 번만 받고 실패는 캐시하지 않는다', async () => {
+    let calls = 0;
+    let fail = true;
+    const codes = createMediaCodes(async () => {
+      calls += 1;
+      if (fail) throw new Error('boom');
+      return [{ id: 3, schema: 'trendview-movie' }];
+    });
+
+    // TV는 실패를 삼키지 않는다. 삼키면 진단 로그에 원인이 남지 않는다.
+    await assert.rejects(() => codes.mediaHeaders(3), /boom/);
+    fail = false;
+    assert.deepEqual(await codes.mediaHeaders(3), { TV: 'movie' });
+    assert.deepEqual(await codes.mediaHeaders(3), { TV: 'movie' });
+    // 실패 1번 + 성공 1번. 성공한 뒤로는 다시 받지 않는다.
+    assert.equal(calls, 2);
+  });
+  it('설정 조회도 첫 조회부터 매체 코드를 붙인다', async () => {
+    const codes = createMediaCodes(async () => [
+      { id: 3, schema: 'trendview-movie' },
+    ]);
+    // 서버가 지금은 c9를 보지 않아도 받을 수 있으면 제대로 보낸다.
+    assert.deepEqual(await codes.mediaHeaders(3, 'c9'), { c9: 'movie' });
+  });
+  it('매체 목록을 못 받아도 설정 조회는 헤더 없이 나간다', async () => {
+    const codes = createMediaCodes(async () => {
+      throw new Error('boom');
+    });
+    // 설정은 media_id로 조회되므로 목록 하나 때문에 화면을 막지 않는다.
+    assert.deepEqual(await codes.mediaHeaders(3, 'c9'), {});
   });
   it('환경변수의 스토리지 URL은 형식을 검증한 뒤 사용한다', () => {
     assert.deepEqual(parseStorageUrls(undefined), {});
@@ -258,7 +297,7 @@ describe('HTTP 연결부', () => {
     });
     await request('/items', {
       method: 'POST',
-      headers: mediaHeaders(3),
+      headers: { TV: 'movie' },
       body: '{"title":"test"}',
     });
   });

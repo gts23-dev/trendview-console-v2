@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { request } from '@/shared/api/client';
 import { AppError } from '@/shared/errors/app-error';
-import { mediaHeaders } from '../model/media-codes';
+import { mediaHeaders } from './media-list';
 
 const detailSchema = z.object({
   data: z.object({
@@ -20,7 +20,7 @@ export async function getMediaTopics(
   signal?: AbortSignal,
 ): Promise<string[]> {
   const data = await request<unknown>(`api/v1/medias/${mediaId}`, {
-    headers: mediaHeaders(mediaId, 'c9'),
+    headers: await mediaHeaders(mediaId, 'c9'),
     signal,
   });
   const parsed = detailSchema.safeParse(data);

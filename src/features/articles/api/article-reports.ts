@@ -31,7 +31,7 @@ export async function getArticleReports(
   signal?: AbortSignal,
 ): Promise<ArticleReport[]> {
   const data = await request<unknown>(`api/v1/article-reports/${id}`, {
-    headers: mediaHeaders(mediaId),
+    headers: await mediaHeaders(mediaId),
     signal,
   });
   const parsed = reportsSchema.safeParse(data);

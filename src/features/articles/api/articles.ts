@@ -72,13 +72,13 @@ export async function getArticles(
 ): Promise<ArticleListResult> {
   const query = toArticleQuery(filters, mediaId, state);
   const data = await request<unknown>(`${LIST_PATHS[state]}?${query}`, {
-    headers: mediaHeaders(mediaId),
+    headers: await mediaHeaders(mediaId),
     signal,
   });
   const parsed = listSchema.safeParse(data);
   if (!parsed.success)
     throw new AppError('목록 응답을 확인하지 못했습니다.', 'INVALID_RESPONSE');
-  const storageBaseUrl = getMediaStorageUrl(getMediaCode(mediaId));
+  const storageBaseUrl = getMediaStorageUrl(await getMediaCode(mediaId));
   return {
     items: parsed.data.data.articles.map((article) =>
       mapArticle(article as ArticleData, storageBaseUrl, filters.sort),

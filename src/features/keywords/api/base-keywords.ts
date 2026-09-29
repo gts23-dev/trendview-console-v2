@@ -35,7 +35,7 @@ export async function getBaseKeywords(
     search: filters.search,
   });
   const data = await request<unknown>(`api/v1/base-keywords?${query}`, {
-    headers: mediaHeaders(mediaId, 'c9'),
+    headers: await mediaHeaders(mediaId, 'c9'),
     signal,
   });
   const parsed = listSchema.safeParse(data);
