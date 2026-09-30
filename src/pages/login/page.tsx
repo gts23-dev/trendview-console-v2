@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Layers, LogIn } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -10,6 +10,7 @@ import { useAuth } from '@/features/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BrandMark } from '@/components/common/brand-mark';
 import { LoadingState } from '@/components/common/empty-state';
 
 const loginSchema = z.object({
@@ -56,7 +57,7 @@ export function LoginPage() {
     <div className="grid min-h-screen lg:grid-cols-2">
       <aside className="subtle-grid relative hidden flex-col justify-between bg-[#17243d] p-14 text-white lg:flex">
         <div className="flex items-center gap-3">
-          <Layers className="size-7" />
+          <BrandMark className="size-7 text-white" />
           <span className="text-2xl font-semibold tracking-tight">
             {APP_CONFIG.brand}.
           </span>
@@ -78,7 +79,7 @@ export function LoginPage() {
       <main className="flex items-center justify-center p-6 sm:p-12">
         <form onSubmit={submit} className="w-full max-w-[400px]">
           <div className="mb-10 flex items-center gap-2 text-primary lg:hidden">
-            <Layers />
+            <BrandMark className="size-6" />
             <span className="text-xl font-bold">{APP_CONFIG.brand}.</span>
           </div>
           <h2 className="text-[28px] font-semibold tracking-tight">로그인</h2>

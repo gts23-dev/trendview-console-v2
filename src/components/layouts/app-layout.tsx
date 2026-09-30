@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  ChevronRight,
-  Layers,
-  LogOut,
-  Menu,
-  PanelLeftClose,
-} from 'lucide-react';
+import { ChevronRight, LogOut, Menu, PanelLeftClose } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { APP_CONFIG } from '@/config/app.config';
@@ -20,6 +14,7 @@ import {
   SheetDescription,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { BrandMark } from '@/components/common/brand-mark';
 
 // 운영 API를 개발 화면으로 착각해 데이터를 건드리는 사고를 막는 표시다.
 const ENV_LABEL =
@@ -75,9 +70,7 @@ function Navigation({ onNavigate }: NavigationProps) {
 function Brand() {
   return (
     <Link to="/collect" className="flex items-center gap-2.5">
-      <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-white">
-        <Layers className="size-5" />
-      </span>
+      <BrandMark className="size-8" />
       <span className="text-[19px] font-bold tracking-tight">
         {APP_CONFIG.brand}
       </span>
