@@ -24,6 +24,11 @@
   --radius: 0.5rem;
   --chart-1: #2563eb;
   --chart-2: #8aabf4;
+  --chart-3: #7c3aed;
+  --exposure-grade-1: #1d9e75;
+  --exposure-grade-2: #ef9f27;
+  --exposure-grade-3: #d85a30;
+  --exposure-grade-4: #888780;
   --success: #137f5b;
   --success-soft: #edf8f2;
   --warning: #9a6700;
@@ -49,6 +54,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-3: var(--chart-3);
+  --color-exposure-grade-1: var(--exposure-grade-1);
+  --color-exposure-grade-2: var(--exposure-grade-2);
+  --color-exposure-grade-3: var(--exposure-grade-3);
+  --color-exposure-grade-4: var(--exposure-grade-4);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);

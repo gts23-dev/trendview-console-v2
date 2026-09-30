@@ -50,6 +50,13 @@ export const router = createBrowserRouter([
               })),
           },
           {
+            path: 'settings/exposure',
+            lazy: () =>
+              import('@/pages/settings/exposure/page').then((m) => ({
+                Component: m.ExposurePage,
+              })),
+          },
+          {
             path: '*',
             element: (
               <EmptyState
