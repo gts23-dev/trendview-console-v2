@@ -5,6 +5,7 @@ import {
   LayoutGrid,
   Settings,
   SlidersHorizontal,
+  Users,
 } from 'lucide-react';
 
 /**
@@ -22,6 +23,12 @@ export const MENU_GROUPS = [
   {
     label: '설정',
     items: [
+      {
+        label: '사용자 관리',
+        path: '/settings/users',
+        icon: Users,
+        adminOnly: true,
+      },
       { label: '카테고리 관리', path: '/settings/topics', icon: Settings },
       {
         label: '키워드(PK) 관리',
