@@ -1,10 +1,17 @@
 import {
+  BarChart3,
   EyeOff,
   FileText,
   Hash,
+  Layers,
   LayoutGrid,
+  ScrollText,
+  Search,
   Settings,
   SlidersHorizontal,
+  TrendingUp,
+  Trophy,
+  UserCheck,
   Users,
 } from 'lucide-react';
 
@@ -18,6 +25,59 @@ export const MENU_GROUPS = [
     items: [
       { label: '수집정보', path: '/collect', icon: LayoutGrid },
       { label: '게시정보', path: '/articles', icon: FileText },
+    ],
+  },
+  {
+    label: '통계',
+    items: [
+      {
+        label: '수집/게시/신고 개수',
+        path: '/stats/counts',
+        icon: BarChart3,
+        adminOnly: true,
+      },
+      {
+        label: '일간 사용자 유입량',
+        path: '/stats/users',
+        icon: TrendingUp,
+        adminOnly: true,
+      },
+      {
+        label: '콘텐츠 순위',
+        path: '/stats/contents',
+        icon: Trophy,
+        adminOnly: true,
+      },
+      {
+        label: '키워드(PK) 순위',
+        path: '/stats/tags',
+        icon: Hash,
+        adminOnly: true,
+      },
+      {
+        label: '키워드(PK) 집계',
+        path: '/stats/tag-totals',
+        icon: Layers,
+        adminOnly: true,
+      },
+      {
+        label: '접속자 순위',
+        path: '/stats/visitors',
+        icon: UserCheck,
+        adminOnly: true,
+      },
+      {
+        label: '사용자 검색',
+        path: '/stats/user-search',
+        icon: Search,
+        adminOnly: true,
+      },
+      {
+        label: '사용자 접속 로그',
+        path: '/stats/user-logs',
+        icon: ScrollText,
+        adminOnly: true,
+      },
     ],
   },
   {

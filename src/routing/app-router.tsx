@@ -64,6 +64,62 @@ export const router = createBrowserRouter([
               })),
           },
           {
+            path: 'stats/counts',
+            lazy: () =>
+              import('@/pages/stats/counts/page').then((m) => ({
+                Component: m.CountsPage,
+              })),
+          },
+          {
+            path: 'stats/users',
+            lazy: () =>
+              import('@/pages/stats/users/page').then((m) => ({
+                Component: m.UsersStatsPage,
+              })),
+          },
+          {
+            path: 'stats/contents',
+            lazy: () =>
+              import('@/pages/stats/contents/page').then((m) => ({
+                Component: m.ContentsPage,
+              })),
+          },
+          {
+            path: 'stats/tags',
+            lazy: () =>
+              import('@/pages/stats/tags/page').then((m) => ({
+                Component: m.TagsPage,
+              })),
+          },
+          {
+            path: 'stats/visitors',
+            lazy: () =>
+              import('@/pages/stats/visitors/page').then((m) => ({
+                Component: m.VisitorsPage,
+              })),
+          },
+          {
+            path: 'stats/user-search',
+            lazy: () =>
+              import('@/pages/stats/user-search/page').then((m) => ({
+                Component: m.UserSearchPage,
+              })),
+          },
+          {
+            path: 'stats/user-logs',
+            lazy: () =>
+              import('@/pages/stats/user-logs/page').then((m) => ({
+                Component: m.UserLogsPage,
+              })),
+          },
+          {
+            path: 'stats/tag-totals',
+            lazy: () =>
+              import('@/pages/stats/tag-totals/page').then((m) => ({
+                Component: m.TagTotalsPage,
+              })),
+          },
+          {
             path: '*',
             element: (
               <EmptyState
